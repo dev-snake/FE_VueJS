@@ -5,6 +5,8 @@ import PolarChart from '@/components/PolarChart.vue'
 import PiaChart from '@/components/PiaChart.vue'
 import BarChartSold from '@/components/BarChartSold.vue'
 import HeaderDashboard from '@/components/HeaderDashboard.vue'
+import * as bootstrap from 'bootstrap'
+
 import { onMounted, ref, watch } from 'vue'
 import axiosConfig from '@/config/axios.config'
 import Loading from '@/components/common/Loading.vue'
@@ -16,6 +18,7 @@ import type { IProduct } from '@/types/product'
 import type { IQuantitySoldCurrentYear } from '@/types/quantity_sold_current_year'
 import type { IRevenueResponse } from '@/types/revenue'
 import GenYears from '@/utils/gen_years'
+
 const currentMonth = ref('')
 const revenueByMonth = ref<IRevenueResponse[]>([])
 const revenueAllYears = ref<any[]>([])
@@ -26,6 +29,7 @@ const seletedYear = ref<string | number>('')
 const seletedMonth = ref<string | number>('')
 const seletedType = ref<string | number>('')
 const loading = ref<boolean>(true)
+
 const setCurrentMonth = () => {
   const date = new Date()
   const year = date.getFullYear()
@@ -64,13 +68,20 @@ const fetchRevenue = async () => {
     loading.value = false
   }
 }
+const openModal = () => {
+  const modalElement = document.getElementById('exampleModal')
+  if (modalElement) {
+    const modal = new bootstrap.Modal(modalElement, {
+      keyboard: false,
+    })
+    modal.show()
+  }
+}
 const handleFilterResults = () => {
   if (!seletedMonth || !seletedYear || !seletedType) return
   console.log(seletedMonth.value, +seletedYear.value, seletedType.value)
 }
-watch([seletedMonth, seletedYear], (newValue) => {
-  console.log('re render', newValue)
-})
+
 onMounted(() => {
   setCurrentMonth()
   loading.value = true
@@ -83,6 +94,33 @@ onMounted(() => {
       Biểu đồ thống kê doanh thu
     </h1>
     <HeaderDashboard />
+    <div
+      class="modal fade"
+      id="exampleModal"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">...</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <Loading v-show="loading" />
     <div v-show="!loading" class="mt-4">
       <div class="flex-end">
@@ -99,6 +137,7 @@ onMounted(() => {
           v-model="seletedMonth"
           class="form-select w-200 me-2"
           aria-label="Default select example"
+          v-show="seletedType === 'quantity_sold_month' || seletedType === 'revenue_month'"
         >
           <option selected value="" disabled>Chọn tháng</option>
           <option
@@ -115,10 +154,12 @@ onMounted(() => {
           aria-label="Default select example"
         >
           <option value="" selected disabled>Chọn Kiểu muốn lọc</option>
-          <option value="quantity_sold">Số lượng bán</option>
-          <option value="revenue">Doanh thu</option>
+          <option value="quantity_sold_month">Số lượng bán theo tháng</option>
+          <option value="quantity_sold_year">Số lượng bán theo năm</option>
+          <option value="revenue_month">Doanh thu theo tháng</option>
+          <option value="revenue_year">Doanh thu theo năm</option>
         </select>
-        <button class="btn btn-primary" @click="handleFilterResults">Lọc kết quả</button>
+        <button type="button" class="btn btn-primary" @click="openModal">Lọc kết quả</button>
       </div>
     </div>
     <div class="grid-col-2 py-4" v-if="!loading">
