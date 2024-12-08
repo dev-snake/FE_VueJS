@@ -9,19 +9,19 @@ import { RouterLink } from 'vue-router'
       <RouterLink
         to="/dashboard"
         activeClass="bg-primary  text-white"
-        class="text-size-1 text-uppercase text-decoration-none px-2 py-3 w-full text-center rounded-4 cursor-pointer"
+        class="text-size-1 fw-medium text-uppercase text-decoration-none px-2 py-3 w-full text-center rounded-2 cursor-pointer"
         >Thống kê</RouterLink
       >
       <RouterLink
         activeClass="bg-primary  text-white"
         to="/products"
-        class="text-size-1 text-uppercase text-decoration-none px-2 py-3 w-full text-center rounded-4 cursor-pointer"
+        class="text-size-1 fw-medium text-uppercase text-decoration-none px-2 py-3 w-full text-center rounded-2 cursor-pointer"
         >Sản Phẩm</RouterLink
       >
       <RouterLink
         activeClass="bg-primary  text-white"
         to="/orders"
-        class="text-size-1 text-uppercase text-decoration-none px-2 py-3 w-full text-center rounded-4 cursor-pointer"
+        class="text-size-1 fw-medium text-uppercase text-decoration-none px-2 py-3 w-full text-center rounded-2 cursor-pointer"
         >Đơn hàng</RouterLink
       >
     </div>

@@ -7,8 +7,10 @@ const {
   labels,
   dataValues,
   chartType = 'pie',
+  label = 'Doanh thu',
 } = defineProps<{
   chartType?: ChartType
+  label?: string
   labels: Array<string>
   dataValues: Array<any>
 }>()
@@ -21,7 +23,7 @@ onMounted(() => {
         labels: labels.map((item) => item),
         datasets: [
           {
-            label: 'Doanh thu',
+            label: label,
             data: dataValues.map((value) => value),
             backgroundColor: [
               'rgb(255, 99, 132)',

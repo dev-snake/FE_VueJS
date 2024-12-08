@@ -36,6 +36,9 @@
 }
 .grid-col-4 {
   @include grid-container(4, 0px 8px);
+  @media screen and (max-width: 1280px) {
+    @include grid-container(3, 0px 8px);
+  }
   @media screen and (max-width: 768px) {
     display: flex;
     flex-direction: column;
@@ -43,10 +46,13 @@
   }
 }
 .grid-col-2 {
-  @include grid-container(2, 8px);
+  width: 100%;
   @media screen and (max-width: 1024px) {
     display: grid;
     grid-template-columns: auto;
+  }
+  @media screen and (min-width: 1670px) {
+    @include grid-container(2, 8px);
   }
 }
 @for $i from 1 through 10 {
@@ -84,7 +90,18 @@ r .grid-item {
 }
 .h-screen {
   height: 100lh;
+  @media screen and (max-width: 1280px) {
+    height: 100%;
+  }
 }
+.flex-response {
+  flex-wrap: wrap;
+
+  @media screen and (max-width: 1280px) {
+    @include flex-layout(center, center, column);
+  }
+}
+
 .bg-danger-customize {
   background-color: $danger-color;
 }

@@ -43,17 +43,9 @@ onMounted(() => {
           },
         },
         responsive: true,
-        // maintainAspectRatio: true,
         layout: {
           padding: 16,
         },
-
-        //       font: {
-        //         size: 10,
-        //       },
-        //     },
-        //   },
-        // },
       },
     })
   }
@@ -63,4 +55,8 @@ onMounted(() => {
   <canvas ref="canvasRef"></canvas>
 </template>
 
-<style scoped></style>
+<style scoped>
+canvas {
+  width: 100% !important;
+}
+</style>

@@ -7,6 +7,7 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { toast } from 'vue3-toastify'
 const router = useRouter()
+const isSubmitting = ref<boolean>(false)
 const newProduct = reactive<INewProduct>({
   productName: '',
   productPrice: 0,
@@ -14,10 +15,11 @@ const newProduct = reactive<INewProduct>({
   storage: 0,
 })
 const handleNewProduct = async () => {
+  if (isSubmitting.value) return
   if ([newProduct.productName, newProduct.productPrice, newProduct.storage].includes('')) {
     return toast.warning('Vui lòng nhập thông tin đầy đủ !')
   }
-
+  isSubmitting.value = true
   try {
     const res = await axiosConfig.post<IAPI_Response<IProduct>>(
       apiRoutes.product.create,
@@ -30,6 +32,8 @@ const handleNewProduct = async () => {
     console.log(res)
   } catch (error) {
     console.log(error)
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
@@ -52,7 +56,9 @@ const handleNewProduct = async () => {
           <label for="" class="form-label">Nhập số trong kho</label>
           <input type="number" class="w-full form-control" v-model="newProduct.storage" />
         </div>
-        <button type="submit" class="w-full mt-3 btn btn-primary">Thêm sản phẩm</button>
+        <button type="submit" class="w-full mt-3 btn btn-primary" :disabled="isSubmitting">
+          {{ isSubmitting ? 'Đang xử lí ...' : 'Thêm sản phẩm' }}
+        </button>
       </form>
     </div>
   </div>

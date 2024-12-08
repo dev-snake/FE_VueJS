@@ -24,15 +24,13 @@ const numberOfProductInventory = ref<IProduct[]>([])
 const quantitySoldCurrentYearList = ref<IQuantitySoldCurrentYear[]>([])
 const seletedYear = ref<string | number>('')
 const seletedMonth = ref<string | number>('')
+const seletedType = ref<string | number>('')
 const loading = ref<boolean>(true)
 const setCurrentMonth = () => {
   const date = new Date()
   const year = date.getFullYear()
   const month = (date.getMonth() + 1).toString().padStart(2, '0')
   currentMonth.value = `${year}-${month}`
-}
-const filterd = () => {
-  // console.log('filter')
 }
 
 const fetchRevenue = async () => {
@@ -66,6 +64,10 @@ const fetchRevenue = async () => {
     loading.value = false
   }
 }
+const handleFilterResults = () => {
+  if (!seletedMonth || !seletedYear || !seletedType) return
+  console.log(seletedMonth.value, +seletedYear.value, seletedType.value)
+}
 watch([seletedMonth, seletedYear], (newValue) => {
   console.log('re render', newValue)
 })
@@ -88,12 +90,11 @@ onMounted(() => {
           v-model="seletedYear"
           class="form-select w-200 me-2"
           aria-label="Default select example"
-          name=""
-          id=""
         >
           <option value="" selected disabled>Chọn năm</option>
           <option v-for="(year, index) in GenYears()" :key="index" v-text="year"></option>
         </select>
+
         <select
           v-model="seletedMonth"
           class="form-select w-200 me-2"
@@ -108,7 +109,16 @@ onMounted(() => {
             Tháng {{ month }}
           </option>
         </select>
-        <button class="btn btn-primary">Lọc kết quả</button>
+        <select
+          v-model="seletedType"
+          class="form-select w-200 me-2"
+          aria-label="Default select example"
+        >
+          <option value="" selected disabled>Chọn Kiểu muốn lọc</option>
+          <option value="quantity_sold">Số lượng bán</option>
+          <option value="revenue">Doanh thu</option>
+        </select>
+        <button class="btn btn-primary" @click="handleFilterResults">Lọc kết quả</button>
       </div>
     </div>
     <div class="grid-col-2 py-4" v-if="!loading">
@@ -130,13 +140,14 @@ onMounted(() => {
       </div>
     </div>
     <div class="grid-item-12 shadow-sm rounded-2 w-full" v-if="!loading">
-      <div class="flex p-4 justify-content-center gap-4">
+      <div class="flex flex-response p-4 justify-content-center gap-4">
         <div class="text-center">
           <PolarChart :data-values="numberOfProductsSold" />
           <h5 class="py-2">Số lượng sản phẩm đã bán</h5>
         </div>
         <div class="text-center">
           <PiaChart
+            :label="'Tồn kho'"
             :data-values="numberOfProductInventory.map((item) => item.storage)"
             :labels="numberOfProductInventory.map((item) => item.productName)"
           />
