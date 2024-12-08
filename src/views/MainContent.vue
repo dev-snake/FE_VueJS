@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import BarChart from '@/components/BarChart.vue'
-import LineChart from '@/components/LineChart.vue'
 import PolarChart from '@/components/PolarChart.vue'
 import PiaChart from '@/components/PiaChart.vue'
-import BarChartSold from '@/components/BarChartSold.vue'
 import HeaderDashboard from '@/components/HeaderDashboard.vue'
 import * as bootstrap from 'bootstrap'
-
 import { onMounted, ref, watch } from 'vue'
 import axiosConfig from '@/config/axios.config'
 import Loading from '@/components/common/Loading.vue'
@@ -18,6 +15,7 @@ import type { IProduct } from '@/types/product'
 import type { IQuantitySoldCurrentYear } from '@/types/quantity_sold_current_year'
 import type { IRevenueResponse } from '@/types/revenue'
 import GenYears from '@/utils/gen_years'
+import { toast } from 'vue3-toastify'
 
 const currentMonth = ref('')
 const revenueByMonth = ref<IRevenueResponse[]>([])
@@ -29,7 +27,8 @@ const seletedYear = ref<string | number>('')
 const seletedMonth = ref<string | number>('')
 const seletedType = ref<string | number>('')
 const loading = ref<boolean>(true)
-
+const isFiltering = ref<boolean>(true)
+const filterData = ref<any[]>([])
 const setCurrentMonth = () => {
   const date = new Date()
   const year = date.getFullYear()
@@ -68,20 +67,35 @@ const fetchRevenue = async () => {
     loading.value = false
   }
 }
-const openModal = () => {
-  const modalElement = document.getElementById('exampleModal')
+const handleFilter = async () => {
+  if ([seletedYear.value, seletedType.value].includes('')) {
+    return toast.warning('Vui lòng chọn đầy đủ')
+  }
+  const modalElement = document.getElementById('exampleModal') as HTMLDivElement
   if (modalElement) {
     const modal = new bootstrap.Modal(modalElement, {
       keyboard: false,
     })
     modal.show()
   }
+  isFiltering.value = true
+  try {
+    const response = await axiosConfig.post<IAPI_Response>(apiRoutes.revenue.filter, {
+      month: +seletedMonth.value,
+      type: seletedType.value,
+      year: +seletedYear.value,
+    })
+    filterData.value = response.data.results
+    console.log(response)
+  } catch (error) {
+    console.log(error)
+  } finally {
+    isFiltering.value = false
+  }
 }
-const handleFilterResults = () => {
-  if (!seletedMonth || !seletedYear || !seletedType) return
-  console.log(seletedMonth.value, +seletedYear.value, seletedType.value)
-}
-
+watch(seletedType, () => {
+  console.log(seletedType.value, 'selected type')
+})
 onMounted(() => {
   setCurrentMonth()
   loading.value = true
@@ -94,6 +108,7 @@ onMounted(() => {
       Biểu đồ thống kê doanh thu
     </h1>
     <HeaderDashboard />
+    <!-- modal -->
     <div
       class="modal fade"
       id="exampleModal"
@@ -104,7 +119,7 @@ onMounted(() => {
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Kết quả tìm kiếm</h1>
             <button
               type="button"
               class="btn-close"
@@ -112,15 +127,25 @@ onMounted(() => {
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body">...</div>
+          <div class="modal-body">
+            <Loading v-show="isFiltering" />
+            <div v-if="!isFiltering">
+              <div v-if="seletedType === 'revenue_month' || seletedType === 'revenue_year'">
+                <PiaChart
+                  :label="'Doanh thu'"
+                  :data-values="filterData.map((item) => item.totalRevenue)"
+                  :labels="filterData.map((item) => item.year)"
+                />
+              </div>
+            </div>
+          </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
           </div>
         </div>
       </div>
     </div>
-
+    <!--  -->
     <Loading v-show="loading" />
     <div v-show="!loading" class="mt-4">
       <div class="flex-end">
@@ -159,7 +184,7 @@ onMounted(() => {
           <option value="revenue_month">Doanh thu theo tháng</option>
           <option value="revenue_year">Doanh thu theo năm</option>
         </select>
-        <button type="button" class="btn btn-primary" @click="openModal">Lọc kết quả</button>
+        <button type="button" class="btn btn-primary" @click="handleFilter">Lọc kết quả</button>
       </div>
     </div>
     <div class="grid-col-2 py-4" v-if="!loading">

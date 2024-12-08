@@ -14,6 +14,7 @@ const apiRoutes = {
     getRevenueByWeek: 'revenue/revenue_by_week/current-year',
     getRevenueByDate: 'revenue/revenue_by_day/current-year',
     years: 'revenue/years',
+    filter: 'revenue/filter',
   },
   order: {
     getAll: `/order/getAll`,
