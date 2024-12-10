@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import type { IProductSoldInfo } from '@/types/get_quantity_sold'
 import Chart from 'chart.js/auto'
-import { onMounted, ref, watch } from 'vue'
-const { dataValues } = defineProps<{ dataValues: IProductSoldInfo[] }>()
+import { onMounted, ref } from 'vue'
+const { dataValues, labels } = defineProps<{
+  labels: string[]
+  dataValues: number[]
+}>()
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 onMounted(() => {
   const ctx = canvasRef.value?.getContext('2d')
@@ -13,11 +16,11 @@ onMounted(() => {
   new Chart(ctx, {
     type: 'polarArea',
     data: {
-      labels: dataValues.map((p) => p.productName),
+      labels: labels,
       datasets: [
         {
           label: 'Số lượng bán',
-          data: dataValues.map((p) => p.quantitySold),
+          data: dataValues.map((value) => value),
           backgroundColor: [
             'rgb(255, 99, 132)',
             'rgb(75, 192, 192)',

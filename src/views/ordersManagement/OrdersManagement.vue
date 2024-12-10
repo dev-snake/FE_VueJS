@@ -8,7 +8,7 @@ import { useRouter } from 'vue-router'
 import Loading from '@/components/common/Loading.vue'
 interface IOrderItem {
   id: string
-  total: number
+  totalOrder: number
   created_at: string
   updated_at: string
 }
@@ -63,7 +63,7 @@ onMounted(() => {
           <th scope="row" v-text="index + 1"></th>
           <td v-text="'Đơn hàng'"></td>
           <td v-text="new Date(order?.created_at).toLocaleDateString()"></td>
-          <td v-text="formatCurrencyVN(order.total)"></td>
+          <td v-text="formatCurrencyVN(order.totalOrder)"></td>
         </tr>
       </tbody>
     </table>

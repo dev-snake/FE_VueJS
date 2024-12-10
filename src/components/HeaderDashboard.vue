@@ -1,62 +1,18 @@
 <script setup lang="ts">
-import { onMounted, reactive } from 'vue'
-import { ref } from 'vue'
-import type { IRevenueByMonth as IRevenueByYear } from '@/types/revenue_by_month'
-import type { IRevenueByMonth } from '@/types/revenue_by_month'
-import axiosConfig from '@/config/axios.config'
-import apiRoutes from '@/config/api_routes.config'
-import type { IAPI_Response } from '@/types/apiResponse'
 import formatCurrencyVN from '@/utils/formatMoney'
-import type { IRevenueByWeek } from '@/types/revenue_by_week'
-import type { ITotalRevenueBy } from '@/types/totalRevenueBy'
-import type { IRevenueByDay } from '@/types/revenue_by_date'
-const totalRevenueBy = reactive<ITotalRevenueBy>({
-  currentYear: 0,
-  currentMonth: 0,
-  currentWeek: 0,
-  currentDay: 0,
-})
-
-const loading = ref<boolean>(true)
-onMounted(() => {
-  loading.value = true
-  const fetchDataRevenueByYear = async () => {
-    try {
-      const [
-        responseRevenueByYear,
-        responseRevenueByMonth,
-        responseRevenueByWeek,
-        responseRevenueByDay,
-      ] = await Promise.all([
-        axiosConfig.get<IAPI_Response<IRevenueByYear[]>>(apiRoutes.revenue.getRevenueByYear),
-        axiosConfig.get<IAPI_Response<IRevenueByMonth[]>>(apiRoutes.revenue.getRevenueByMonth),
-        axiosConfig.get<IAPI_Response<IRevenueByWeek[]>>(apiRoutes.revenue.getRevenueByWeek),
-        axiosConfig.get<IAPI_Response<IRevenueByDay[]>>(apiRoutes.revenue.getRevenueByDate),
-      ])
-      totalRevenueBy.currentYear = responseRevenueByYear.data.results.reduce(
-        (total, item) => total + item.totalRevenue,
-        0,
-      )
-      totalRevenueBy.currentMonth = responseRevenueByMonth.data.results.reduce(
-        (total, item) => total + item.totalRevenue,
-        0,
-      )
-      totalRevenueBy.currentWeek = responseRevenueByWeek.data.results.reduce(
-        (total, item) => total + item.totalRevenue,
-        0,
-      )
-      totalRevenueBy.currentDay = responseRevenueByDay.data.results.reduce(
-        (total, item) => total + item.totalRevenue,
-        0,
-      )
-    } catch (error) {
-      console.log(error)
-    } finally {
-      loading.value = false
-    }
-  }
-  fetchDataRevenueByYear()
-})
+const {
+  loading,
+  revenueByCurrentDay,
+  revenueByCurrentMonth,
+  revenueByCurrentWeek,
+  revenueByCurrentYear,
+} = defineProps<{
+  loading: boolean
+  revenueByCurrentYear: number | undefined
+  revenueByCurrentDay: number | undefined
+  revenueByCurrentMonth: number | undefined
+  revenueByCurrentWeek: number | undefined
+}>()
 </script>
 
 <template>
@@ -77,7 +33,7 @@ onMounted(() => {
         <h2
           v-else="!loading"
           class="py-2 fs-1 animate__animated animate__bounce text-success text-shadow"
-          v-text="formatCurrencyVN(totalRevenueBy.currentYear)"
+          v-text="formatCurrencyVN(revenueByCurrentYear ?? 0)"
         ></h2>
       </div>
     </div>
@@ -96,7 +52,7 @@ onMounted(() => {
       <h2
         class="py-2 animate__animated animate__bounce text-danger text-shadow-red fs-1"
         v-else
-        v-text="formatCurrencyVN(totalRevenueBy.currentMonth)"
+        v-text="formatCurrencyVN(revenueByCurrentMonth ?? 0)"
       ></h2>
     </div>
     <div class="shadow-sm p-4 rounded-4">
@@ -114,7 +70,7 @@ onMounted(() => {
       <h2
         class="py-2 animate__animated animate__bounce text-secondary fs-1"
         v-else
-        v-text="formatCurrencyVN(totalRevenueBy.currentWeek)"
+        v-text="formatCurrencyVN(revenueByCurrentWeek ?? 0)"
       ></h2>
     </div>
     <div class="shadow-sm p-4 rounded-4">
@@ -133,7 +89,7 @@ onMounted(() => {
         <h2
           class="py-2 animate__animated animate__bounce fs-1"
           v-else
-          v-text="formatCurrencyVN(totalRevenueBy.currentDay)"
+          v-text="formatCurrencyVN(revenueByCurrentDay ?? 0)"
         ></h2>
       </div>
     </div>
