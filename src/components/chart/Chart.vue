@@ -52,13 +52,13 @@ onMounted(() => {
         responsive: true,
         layout: { padding: 16 },
 
-        plugins: {
-          tooltip: {
-            callbacks: {
-              footer: footer,
-            },
-          },
-        },
+        // plugins: {
+        //   tooltip: {
+        //     callbacks: {
+        //       footer: footer,
+        //     },
+        //   },
+        // },
       },
     })
   }
@@ -70,6 +70,7 @@ watch(
     if (chartInstance) {
       chartInstance.data.datasets[0].data = newData
       chartInstance.data.labels = newLabels
+      chartInstance.data.datasets[0].label = label
       chartInstance.update()
     }
   },

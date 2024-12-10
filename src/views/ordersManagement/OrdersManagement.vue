@@ -48,8 +48,8 @@ onMounted(() => {
         Tạo đơn hàng
       </button>
     </div>
-    <Loading v-if="loading" />
-    <table class="table" v-else>
+    <Loading v-show="loading" />
+    <table class="table" v-show="!loading">
       <thead>
         <tr>
           <th scope="col">#</th>
@@ -58,16 +58,35 @@ onMounted(() => {
           <th scope="col">Tổng đơn hàng</th>
         </tr>
       </thead>
-      <tbody>
+      <TransitionGroup name="list" tag="tbody">
         <tr v-for="(order, index) in ordersList" :key="index">
           <th scope="row" v-text="index + 1"></th>
           <td v-text="'Đơn hàng'"></td>
           <td v-text="new Date(order?.created_at).toLocaleDateString()"></td>
           <td v-text="formatCurrencyVN(order.totalOrder)"></td>
         </tr>
-      </tbody>
+      </TransitionGroup>
     </table>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.list-move,
+.list-enter-active,
+.list-leave-active {
+  transition: all 1s ease;
+}
+/* .list-leave-active{
+  position: absolute;
+} */
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+.list-enter-to,
+.list-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+</style>

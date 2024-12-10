@@ -1,42 +1,34 @@
 <script setup lang="ts">
 import Chart from '@/components/chart/Chart.vue'
-import PolarChart from '@/components/chart/PolarChart.vue'
 import PiaChart from '@/components/chart/PiaChart.vue'
 import HeaderDashboard from '@/components/HeaderDashboard.vue'
 import { onMounted, ref, watch } from 'vue'
 import axiosConfig from '@/config/axios.config'
 import Loading from '@/components/common/Loading.vue'
 import apiRoutes from '@/config/api_routes.config'
-import type { IAPI_Response } from '@/types/apiResponse'
+import type { IAPI_Response, TFilterType } from '@/types/apiResponse'
 import type { IProductSoldInfo } from '@/types/get_quantity_sold'
 import type { IProduct } from '@/types/product'
 import type { IQuantitySoldCurrentYear } from '@/types/quantity_sold_current_year'
-import type { IRevenueResponse } from '@/types/revenue'
 import FilterBar from '@/components/FilterBar.vue'
 import { toast } from 'vue3-toastify'
-type TFilterType =
-  | 'QUANTITY_SOLD_BY_YEAR'
-  | 'REVENUE_BY_YEAR'
-  | 'REVENUE_BY_MONTH'
-  | 'QUANTITY_SOLD_BY_MONTH'
-  | ''
 const seletedType = ref<TFilterType>('')
-const currentMonth = ref('')
 const numberOfProductsSold = ref<IProductSoldInfo[]>([])
 const numberOfProductInventory = ref<IProduct[]>([])
 const quantitySoldCurrentYearList = ref<IQuantitySoldCurrentYear[]>([])
 const seletedYear = ref<string | number>(new Date().getFullYear())
 const revenueData = ref<IRevenueData>()
-const filterValue = ref({
-  yearOfQuantitySold: new Date().getFullYear(),
-  yearOfRevenue: new Date().getFullYear(),
-  monthOfQuantitySold: new Date().getMonth() + 1,
-  monthOfRevenue: new Date().getMonth() + 1,
-})
+const selectedMonthOfRevenue = ref<number>()
+const selectedMonthOfQuantitySold = ref<number>()
 const seletedMonth = ref<string | number>('')
 const loading = ref<boolean>(true)
+const filterInfoOfRevenue = ref<{ month: number | null; type: TFilterType; year: number }>(
+  {} as { month: number | null; type: TFilterType; year: number },
+)
+const filterInfoOfQuantitySold = ref<{ month: number | null; type: TFilterType; year: number }>(
+  {} as { month: number | null; type: TFilterType; year: number },
+)
 const isFiltering = ref<boolean>(false)
-
 const fetchRevenue = async () => {
   try {
     const [
@@ -77,19 +69,27 @@ const handleFilter = async () => {
       if (revenueData.value) {
         revenueData.value.revenueByYear = response.data.results
       }
-
-      filterValue.value.yearOfRevenue = +seletedYear.value
+      filterInfoOfRevenue.value = {
+        month: null,
+        type: response.data.payload.type,
+        year: response.data.payload.year,
+      }
     } else if (seletedType.value === 'REVENUE_BY_MONTH') {
       if (revenueData.value) {
         revenueData.value.revenueByYear = response.data.results
       }
-      filterValue.value.yearOfQuantitySold = +seletedYear.value
+      filterInfoOfRevenue.value = response.data.payload
+      console.log(filterInfoOfRevenue.value)
     } else if (seletedType.value === 'QUANTITY_SOLD_BY_YEAR') {
       quantitySoldCurrentYearList.value = response.data.results
-      filterValue.value.yearOfQuantitySold = +seletedYear.value
+      filterInfoOfQuantitySold.value = {
+        month: null,
+        type: response.data.payload.type,
+        year: response.data.payload.year,
+      }
     } else if (seletedType.value === 'QUANTITY_SOLD_BY_MONTH') {
       quantitySoldCurrentYearList.value = response.data.results
-      filterValue.value.monthOfQuantitySold = +seletedMonth.value
+      filterInfoOfQuantitySold.value = response.data.payload
     }
     console.log(response)
   } catch (error) {
@@ -98,13 +98,7 @@ const handleFilter = async () => {
     isFiltering.value = false
   }
 }
-watch(
-  revenueData,
-  (newValue) => {
-    console.log(newValue, 'NewValue')
-  },
-  { deep: true },
-)
+
 onMounted(() => {
   loading.value = true
   fetchRevenue()
@@ -128,6 +122,8 @@ onMounted(() => {
     <FilterBar
       v-show="!loading"
       v-model:seleted-year="seletedYear"
+      v-model:selected-month-of-revenue="selectedMonthOfRevenue"
+      v-model:selected-month-of-quantity-sold="selectedMonthOfQuantitySold"
       v-model:seleted-type="seletedType"
       v-model:seleted-month="seletedMonth"
       :isFiltering="isFiltering"
@@ -137,31 +133,21 @@ onMounted(() => {
     <Loading v-show="isFiltering" />
     <div class="grid-col-2 py-4" v-if="!loading">
       <div class="grid-item shadow-sm">
-        <h5
-          class="text-center"
-          v-text="
-            `Biểu đồ doanh thu của năm ${filterValue.yearOfRevenue || new Date().getFullYear()}`
-          "
-        ></h5>
+        <h5 class="text-center" v-text="`Biểu đồ doanh thu của năm `"></h5>
         <Chart
           :labels="
             revenueData?.revenueByYear.map((item) =>
               item.day === undefined ? item.month.toString() : item.day.toString(),
             )
           "
-          :label="'Tổng doanh thu'"
+          :label="`
+            Biểu đồ doanh thu của năm ${filterInfoOfRevenue.year || new Date().getFullYear()}  ${filterInfoOfRevenue.month ? 'Tháng ' + filterInfoOfRevenue.month : ''}
+          `"
           :data-values="revenueData?.revenueByYear.map((item) => item.totalRevenue) ?? []"
         />
       </div>
       <div class="grid-item shadow-sm">
-        <h5
-          class="text-center py-2"
-          v-text="
-            `Biểu đồ số lượng bán trong năm ${
-              filterValue.yearOfQuantitySold || new Date().getFullYear()
-            }`
-          "
-        ></h5>
+        <h5 class="text-center py-2" v-text="`Biểu đồ số lượng bán trong năm `"></h5>
 
         <Chart
           :labels="
@@ -169,30 +155,34 @@ onMounted(() => {
               item.day === undefined ? item.month.toString() : item.day.toString(),
             )
           "
-          :label="'Tổng số lượng bán'"
+          :label="`
+            Biểu đồ số lượng bán trong năm ${filterInfoOfQuantitySold.year || new Date().getFullYear()}  ${filterInfoOfQuantitySold.month ? 'Tháng ' + filterInfoOfQuantitySold.month : ''}
+          `"
           :chart-type="'line'"
           :data-values="quantitySoldCurrentYearList.map((item) => item.total_quantity_sold)"
+        />
+      </div>
+      <div class="text-center shadow-sm p-4">
+        <h5 class="py-2">Số lượng sản phẩm đã bán</h5>
+        <Chart
+          :label="'Đã bán'"
+          chart-type="line"
+          :labels="numberOfProductsSold.map((item) => item.productName)"
+          :data-values="numberOfProductsSold.map((item) => item.quantitySold)"
+        />
+      </div>
+      <div class="text-center grid-item shadow-sm">
+        <h5 class="py-2">Số lượng sản phẩm tồn kho</h5>
+        <Chart
+          :label="'Tồn kho'"
+          :data-values="numberOfProductInventory.map((item) => item.storage)"
+          :labels="numberOfProductInventory.map((item) => item.productName)"
         />
       </div>
     </div>
     <!--  -->
     <div class="grid-item-12 shadow-sm rounded-2 w-full" v-if="!loading">
       <div class="flex flex-response p-4 justify-content-center gap-4">
-        <div class="text-center">
-          <h5 class="py-2">Số lượng sản phẩm đã bán</h5>
-          <PolarChart
-            :labels="numberOfProductsSold.map((item) => item.productName)"
-            :data-values="numberOfProductsSold.map((item) => item.quantitySold)"
-          />
-        </div>
-        <div class="text-center">
-          <h5 class="py-2">Số lượng sản phẩm tồn kho</h5>
-          <PiaChart
-            :label="'Tồn kho'"
-            :data-values="numberOfProductInventory.map((item) => item.storage)"
-            :labels="numberOfProductInventory.map((item) => item.productName)"
-          />
-        </div>
         <div class="text-center">
           <h5 class="py-2">Doanh thu bán hàng của các năm</h5>
           <PiaChart

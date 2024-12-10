@@ -3,7 +3,7 @@ import apiRoutes from '@/config/api_routes.config'
 import axiosConfig from '@/config/axios.config'
 import type { IAPI_Response } from '@/types/apiResponse'
 import type { IProduct } from '@/types/product'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { toast } from 'vue3-toastify'
 import Loading from '@/components/common/Loading.vue'
@@ -30,13 +30,14 @@ const handleDeleteProduct = async (productId: string) => {
   }
 }
 const handleSearchProduct = () => {
-  if (searchValue.value.includes('')) {
-    productsList.value = productsListCopy.value
+  if (!searchValue.value) {
+    productsList.value === productsListCopy.value
   }
-  productsList.value = productsList.value.filter((p) =>
-    p.productName.toLocaleLowerCase().includes(searchValue.value.toLocaleLowerCase().trim()),
+  productsList.value = productsList.value.filter((item) =>
+    item.productName.toLowerCase().trim().includes(searchValue.value.trim().toLowerCase()),
   )
 }
+
 onMounted(() => {
   const fetchData = async () => {
     try {
@@ -60,7 +61,12 @@ onMounted(() => {
   </div>
   <div class="flex-end flex-gap-4">
     <div>
-      <input type="text" class="form-control" v-model="searchValue" />
+      <input
+        type="text"
+        class="form-control"
+        v-model="searchValue"
+        @keyup.enter="handleSearchProduct"
+      />
     </div>
     <button
       class="btn bg-secondary text-white p-2 rounded-2 opacity-75"
@@ -85,9 +91,13 @@ onMounted(() => {
         <th>Hành động</th>
       </tr>
     </thead>
-    <!-- <tbody>
-    </tbody> -->
+
     <TransitionGroup name="list" tag="tbody">
+      <tr v-show="productsList.length === 0">
+        <td colspan="5" class="text-center fst-italic py-2">
+          <span>Không tìm thấy sản phẩm nào phù hợp</span>
+        </td>
+      </tr>
       <tr
         v-for="(product, index) in productsList"
         :key="index"

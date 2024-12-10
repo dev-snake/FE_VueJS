@@ -4,12 +4,20 @@ import GenYears from '@/utils/gen_years'
 const props = defineProps<{
   isFiltering: boolean
   seletedYear: string | number
+  selectedMonthOfRevenue: number | undefined
+  selectedMonthOfQuantitySold: number | undefined
   seletedType: string
   seletedMonth: string | number
   handleFilter: () => void
 }>()
 
-const emit = defineEmits(['update:seletedYear', 'update:seletedType', 'update:seletedMonth'])
+const emit = defineEmits([
+  'update:seletedYear',
+  'update:seletedType',
+  'update:seletedMonth',
+  'update:selectedMonthOfRevenue',
+  'update:selectedMonthOfQuantitySold',
+])
 
 const localSelectedYear = ref(props.seletedYear)
 const localSelectedType = ref(props.seletedType)
@@ -29,7 +37,9 @@ watch(
 )
 
 const updateSelectedYear = (year: string | number) => emit('update:seletedYear', year)
-const updateSelectedMonth = (month: string | number) => emit('update:seletedMonth', month)
+const updateSelectedMonth = (month: string | number) => {
+  emit('update:seletedMonth', month)
+}
 const updateSelectedType = (type: string) => emit('update:seletedType', type)
 </script>
 
