@@ -1,3 +1,5 @@
+@use 'variables' as *;
+
 @mixin flex-layout($justify: center, $align: center, $direction: row, $gap: 0) {
   display: flex;
   flex-direction: $direction;
@@ -5,17 +7,24 @@
   align-items: $align;
   gap: $gap + px;
 }
-@mixin grid-container($columns: 1fr, $gap: 8px) {
-  display: grid;
-  grid-template-columns: repeat($columns, 1fr);
-  gap: $gap;
-}
-@mixin grid-cols($col) {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat($col, 1fr);
+
+@mixin grid-cols($cols) {
+  grid-template-columns: repeat($cols, minmax(0, 1fr));
 }
 
 @mixin column-span($start: 2, $col: 1) {
   grid-column: $start / span $col;
+}
+@mixin column-span-($col) {
+  grid-column: span $col / span $col;
+}
+@mixin responsive($key) {
+  @media (min-width: map-get($breakpoints, $key)) {
+    @content;
+  }
+}
+@mixin responsive-max($key) {
+  @media not all and (min-width: map-get($breakpoints, $key)) {
+    @content;
+  }
 }

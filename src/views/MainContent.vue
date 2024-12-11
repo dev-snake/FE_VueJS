@@ -12,6 +12,7 @@ import type { IProduct } from '@/types/product'
 import type { IQuantitySoldCurrentYear } from '@/types/quantity_sold_current_year'
 import FilterBar from '@/components/FilterBar.vue'
 import { toast } from 'vue3-toastify'
+import PolarChart from '@/components/chart/PolarChart.vue'
 const seletedType = ref<TFilterType>('')
 const numberOfProductsSold = ref<IProductSoldInfo[]>([])
 const numberOfProductInventory = ref<IProduct[]>([])
@@ -131,9 +132,9 @@ onMounted(() => {
     />
     <Loading v-show="loading" />
     <Loading v-show="isFiltering" />
-    <div class="grid-col-2 py-4" v-if="!loading">
+    <div class="grid grid-cols-2 main-content-responsive gap-2 py-4" v-if="!loading">
       <div class="grid-item shadow-sm">
-        <h5 class="text-center" v-text="`Biểu đồ doanh thu của năm `"></h5>
+        <h5 class="text-center" v-text="`Biểu đồ doanh thu của năm`"></h5>
         <Chart
           :labels="
             revenueData?.revenueByYear.map((item) =>
@@ -186,6 +187,14 @@ onMounted(() => {
         <div class="text-center">
           <h5 class="py-2">Doanh thu bán hàng của các năm</h5>
           <PiaChart
+            :chart-type="'doughnut'"
+            :data-values="revenueData?.revenueAllYears.map((item) => item.totalRevenue) ?? []"
+            :labels="revenueData?.revenueAllYears.map((item) => item.year) as any"
+          />
+        </div>
+        <div class="text-center">
+          <h5 class="py-2">Doanh thu bán hàng của các năm</h5>
+          <PolarChart
             :chart-type="'doughnut'"
             :data-values="revenueData?.revenueAllYears.map((item) => item.totalRevenue) ?? []"
             :labels="revenueData?.revenueAllYears.map((item) => item.year) as any"

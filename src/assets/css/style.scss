@@ -1,8 +1,8 @@
 @use 'variables' as *;
 @use 'minxins' as *;
-// html {
-//   font-size: 62.5%;
-// }
+@use 'flexbox' as *;
+@use 'grid' as *;
+@use 'responsive' as *;
 %box-style {
   border: 1px solid whitesmoke;
   border-radius: 1rem;
@@ -19,9 +19,7 @@
 .flex-end {
   @include flex-layout(end, center);
 }
-.grid-container {
-  @include grid-container(12, 0);
-}
+
 .side-bar {
   @include column-span(1, 2);
   @media screen and (max-width: 1280px) {
@@ -34,27 +32,7 @@
     @include column-span(1, 12);
   }
 }
-.grid-col-4 {
-  @include grid-container(4, 0px 8px);
-  @media screen and (max-width: 1280px) {
-    @include grid-container(3, 0px 8px);
-  }
-  @media screen and (max-width: 768px) {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-}
-.grid-col-2 {
-  width: 100%;
-  @media screen and (max-width: 1024px) {
-    display: grid;
-    grid-template-columns: auto;
-  }
-  @media screen and (min-width: 1670px) {
-    @include grid-container(2, 8px);
-  }
-}
+
 @for $i from 1 through 10 {
   .text-size-#{$i} {
     font-size: $i + rem;
@@ -69,18 +47,13 @@
 .grid-item-7-end {
   @include column-span(7, 6);
 }
-r .grid-item {
+.grid-item {
   @extend %box-style;
 }
 .bg-primary {
   background-color: $primary-color;
 }
-.w-full {
-  width: 100%;
-}
-.h-full {
-  width: 100%;
-}
+
 .cursor-pointer:hover {
   cursor: pointer;
 }
@@ -114,15 +87,22 @@ r .grid-item {
     gap: $i + px;
   }
 }
-.flex {
-  display: flex;
-}
-.justify-center {
-  justify-content: space-between;
-}
-.items-center {
-  align-items: center;
-}
+
 .w-200 {
   width: 200px !important;
+}
+.max-md-cod {
+  @media screen and (max-width: 768px) {
+    background-color: red;
+  }
+}
+.min-h-full {
+  min-height: 100%;
+}
+
+.w-full {
+  width: 100%;
+}
+.h-full {
+  width: 100%;
 }

@@ -38,6 +38,11 @@ const router = createRouter({
           component: () => import('@/views/ordersManagement/NewOrder.vue'),
         },
         {
+          path: '/order/:orderId/edit',
+          name: 'edit-order',
+          component: () => import('@/views/ordersManagement/EditOrder.vue'),
+        },
+        {
           path: '/products',
           name: 'products',
           component: () => import('@/views/productsManagement/ProductManagement.vue'),
@@ -52,6 +57,19 @@ const router = createRouter({
           name: 'edit-product',
           component: () => import('@/views/productsManagement/EditProduct.vue'),
         },
+        {
+          path: '/users',
+          name: 'users'
+          , component: () => import('@/views/usersManagement/UsersManagement.vue')
+        }, {
+          path: '/users/create',
+          name: 'create-user',
+          component: () => import('@/views/usersManagement/NewUser.vue')
+        }, {
+          path: '/users/:userId/edit',
+          name: 'edit-user',
+          component: () => import('@/views/usersManagement/EditUser.vue')
+        }
       ],
     },
   ],

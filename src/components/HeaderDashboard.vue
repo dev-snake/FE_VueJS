@@ -16,7 +16,7 @@ const {
 </script>
 
 <template>
-  <div class="grid-col-4">
+  <div class="grid grid-cols-4 quick-stats-responsive gap-2">
     <div class="shadow-sm p-4 rounded-4">
       <div>
         <span class="fs-6 fw-bolder text-dark opacity-25 animate__animated animate__bounce d-block"

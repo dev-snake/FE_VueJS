@@ -1,0 +1,35 @@
+@use 'minxins' as *;
+@use 'grid' as *;
+
+.responsive-create-order {
+  @include responsive-max(md) {
+    @include grid-cols(1);
+    gap: 8px;
+  }
+}
+.main-content-responsive {
+  @include responsive-max(sm) {
+    @include grid-cols(1);
+  }
+  @include responsive-max(md) {
+    @include grid-cols(1);
+  }
+  @include responsive-max(lg) {
+    @include grid-cols(1);
+  }
+  @include responsive(xl) {
+  }
+}
+.wrapper-content-responsive {
+  @include responsive-max(xl) {
+    @include column-span-(12);
+  }
+}
+.quick-stats-responsive {
+  @include responsive-max(lg) {
+    @include grid-cols(2);
+  }
+  @include responsive-max(sm) {
+    @include grid-cols(1);
+  }
+}

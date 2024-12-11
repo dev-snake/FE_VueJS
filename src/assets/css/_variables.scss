@@ -5,3 +5,10 @@ $danger-color: #f31260;
 $yellow-color: #f5a524;
 $pink-color: #ff4ecd;
 $dark-color: #71717a;
+$breakpoints: (
+  sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+  2xl: 1536px,
+);

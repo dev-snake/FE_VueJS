@@ -4,9 +4,9 @@ import Sidebar from '@/components/partials/sidebar.vue'
 </script>
 <template>
   <div>
-    <div class="grid-container">
+    <div class="grid grid-cols-12">
       <Sidebar />
-      <div class="main-content px-4">
+      <div class="col-span-10 wrapper-content-responsive px-4">
         <RouterView />
       </div>
     </div>

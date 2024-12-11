@@ -6,7 +6,7 @@ import type { IProduct } from '@/types/product'
 import type { IUser } from '@/types/user'
 import formatCurrencyVN from '@/utils/formatMoney'
 import { onMounted, ref, watch, Transition } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue3-toastify'
 
 interface PaymentInfo {
@@ -27,6 +27,7 @@ const paymentInfo = ref<PaymentInfo>({} as PaymentInfo)
 const loading = ref<boolean>(true)
 const totalOrder = ref<number>(0)
 const router = useRouter()
+const { params } = useRoute()
 const handleAddProduct = (productId: string) => {
   const product = productsList.value.find((p) => p.id === productId)
   const newOrderItem = {
@@ -57,7 +58,7 @@ const handleDecreaseItemOrder = (productId: string) => {
     orderItem.quantity -= 1
   }
 }
-const handleCreateOrder = async () => {
+const handleUpdateOrder = async () => {
   if (newOrder.value.length === 0) {
     return toast.warning('Vui lòng thêm sản phẩm trước khi tạo  !')
   }
@@ -75,7 +76,7 @@ const handleCreateOrder = async () => {
       products: newOrder.value,
       methodPayment: paymentInfo.value.methodPayment,
       customerId: paymentInfo.value.customerId,
-      orderStatus: 'completed',
+      orderStatus: paymentInfo.value.orderStatus,
     })
     if (res.data.status === 'success') {
       toast.success('Tạo đơn hàng thành công !')
@@ -108,9 +109,12 @@ onMounted(() => {
   const fetchData = async () => {
     loading.value = true
     try {
-      const [res, responseUsersList] = await Promise.all([
+      const [res, responseUsersList, orderInfo] = await Promise.all([
         axiosConfig.get<IAPI_Response<IProduct[]>>(apiRoutes.product.getAll),
         axiosConfig.get<IAPI_Response<IUser[]>>(apiRoutes.user.getAll),
+        axiosConfig.get<IAPI_Response<IOrderItem>>(
+          apiRoutes.order.getOne(params.orderId as string),
+        ),
       ])
       if (res.data.status === 'success') {
         productsList.value = res.data.results
@@ -128,7 +132,7 @@ onMounted(() => {
 })
 </script>
 <template>
-  <h1 class="text-uppercase py-4">Tạo đơn hàng</h1>
+  <h1 class="text-uppercase py-4">Cập nhật đơn hàng</h1>
   <div class="grid grid-cols-12 flex-gap-8 responsive-create-order p-2">
     <div class="col-span-6 border-2">
       <div class="shadow-sm w-full bg-white p-4 rounded-4">
@@ -266,7 +270,9 @@ onMounted(() => {
         </div>
       </div>
       <div class="mt-4">
-        <button class="w-full p-2 btn btn-primary" @click="handleCreateOrder">Tạo đơn hàng</button>
+        <button class="w-full p-2 btn btn-primary" @click="handleUpdateOrder">
+          Cập nhật đơn hàng
+        </button>
       </div>
     </div>
   </div>

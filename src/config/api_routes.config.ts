@@ -20,6 +20,14 @@ const apiRoutes = {
   order: {
     getAll: `/order/getAll`,
     create: `/order/create`,
+    getOne: (orderId: string) => `/order/getOne/${orderId}/`,
+  },
+  user: {
+    getAll: `/user/getAll`,
+    create: `/user/create`,
+    delete: (userId: string) => `/user/${userId}/delete`,
+    edit: (userId: string) => `/user/${userId}/edit`,
+    getOne: (userId: string) => `/user/getOne/${userId}/`,
   },
   product: {
     getAll: '/product/getAll',
