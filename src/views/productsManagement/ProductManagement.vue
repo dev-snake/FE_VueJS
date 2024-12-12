@@ -31,7 +31,7 @@ const handleDeleteProduct = async (productId: string) => {
 }
 const handleSearchProduct = () => {
   if (!searchValue.value) {
-    productsList.value === productsListCopy.value
+    productsList.value = productsListCopy.value
   }
   productsList.value = productsList.value.filter((item) =>
     item.productName.toLowerCase().trim().includes(searchValue.value.trim().toLowerCase()),

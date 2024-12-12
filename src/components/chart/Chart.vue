@@ -3,13 +3,16 @@ import Chart from 'chart.js/auto'
 import { type ChartType } from 'chart.js/auto'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import months from '@/utils/monthsData'
+type TLabelType = 'Tháng' | 'Ngày' | 'Năm' | ''
 const {
   dataValues,
   label = 'Doanh thu',
   chartType = 'bar',
   labels = months,
+  labelType = '',
 } = defineProps<{
   label: string
+  labelType?: TLabelType
   labels?: Array<string>
   dataValues: Array<any>
   chartType?: ChartType
@@ -31,7 +34,7 @@ onMounted(() => {
     chartInstance = new Chart(ctx, {
       type: chartType,
       data: {
-        labels: labels,
+        labels: labels.map((item) => labelType + ' ' + item),
         datasets: [
           {
             label,
@@ -69,7 +72,7 @@ watch(
   ([newData, newLabels]) => {
     if (chartInstance) {
       chartInstance.data.datasets[0].data = newData
-      chartInstance.data.labels = newLabels
+      chartInstance.data.labels = newLabels.map((item) => labelType + ' ' + item)
       chartInstance.data.datasets[0].label = label
       chartInstance.update()
     }

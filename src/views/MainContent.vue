@@ -12,9 +12,16 @@ import type { IQuantitySoldCurrentYear } from '@/types/quantity_sold_current_yea
 import FilterBar from '@/components/FilterBar.vue'
 import { toast } from 'vue3-toastify'
 import * as bootstrap from 'bootstrap'
-import ChartCompare from '@/components/chart/ChartCompare.vue'
-
 type TSearchType = 'REVENUE_METHOD_PAYMENT' | 'BEST_SELLING_PRODUCT'
+type TDashboardFilterType = 'Tháng' | 'Năm' | 'Ngày'
+interface IDashboardFilter {
+  revenue: TDashboardFilterType
+  quantitySold: TDashboardFilterType
+}
+const typeDashboardFilter = ref<IDashboardFilter>({
+  revenue: 'Tháng',
+  quantitySold: 'Tháng',
+})
 const seletedType = ref<TFilterType>('')
 const numberOfProductsSold = ref<IProductSoldInfo[]>([])
 const numberOfProductInventory = ref<IProduct[]>([])
@@ -82,9 +89,11 @@ const handleFilter = async () => {
         type: response.data.payload.type,
         year: response.data.payload.year,
       }
+      typeDashboardFilter.value.revenue = 'Tháng'
     } else if (seletedType.value === 'REVENUE_BY_MONTH') {
       if (revenueData.value) {
         revenueData.value.revenueByYear = response.data.results
+        typeDashboardFilter.value.revenue = 'Ngày'
       }
       filterInfoOfRevenue.value = response.data.payload
       console.log(filterInfoOfRevenue.value)
@@ -95,9 +104,11 @@ const handleFilter = async () => {
         type: response.data.payload.type,
         year: response.data.payload.year,
       }
+      typeDashboardFilter.value.quantitySold = 'Tháng'
     } else if (seletedType.value === 'QUANTITY_SOLD_BY_MONTH') {
       quantitySoldCurrentYearList.value = response.data.results
       filterInfoOfQuantitySold.value = response.data.payload
+      typeDashboardFilter.value.quantitySold = 'Ngày'
     }
     console.log(response)
   } catch (error) {
@@ -119,17 +130,16 @@ const handleSearch = async () => {
     const response = await axiosConfig.post<IAPI_Response>(apiRoutes.revenue.search, {
       type_search: SEARCH_TYPE.value,
     })
-    dataSearch.value = response.data.results
-    console.log(response)
+    if (response.data.status === 'success') {
+      dataSearch.value = response.data.results
+    }
   } catch (error) {
     console.log(error)
   } finally {
     isSearching.value = false
   }
 }
-watch(dataSearch, () => {
-  console.log(dataSearch, 'data search')
-})
+
 onMounted(() => {
   loading.value = true
   fetchRevenue()
@@ -216,6 +226,7 @@ onMounted(() => {
       <div class="grid-item shadow-sm">
         <h5 class="text-center" v-text="`Biểu đồ doanh thu của năm`"></h5>
         <Chart
+          :label-type="typeDashboardFilter.revenue"
           :labels="
             revenueData?.revenueByYear.map((item) =>
               item.day === undefined ? item.month.toString() : item.day.toString(),
@@ -236,6 +247,7 @@ onMounted(() => {
               item.day === undefined ? item.month.toString() : item.day.toString(),
             )
           "
+          :label-type="typeDashboardFilter.quantitySold"
           :label="`
             Biểu đồ số lượng bán trong năm ${filterInfoOfQuantitySold.year || new Date().getFullYear()}  ${filterInfoOfQuantitySold.month ? 'Tháng ' + filterInfoOfQuantitySold.month : ''}
           `"
@@ -272,6 +284,7 @@ onMounted(() => {
       <div class="text-center grid-item shadow-sm">
         <h5 class="py-2">Doanh thu bán hàng của các năm</h5>
         <Chart
+          :label-type="'Năm'"
           :label="'Doanh thu bán hàng của các năm'"
           :chart-type="'line'"
           :data-values="revenueData?.revenueAllYears.map((item) => item.totalRevenue) ?? []"
