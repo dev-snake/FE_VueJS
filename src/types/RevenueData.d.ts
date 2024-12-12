@@ -5,8 +5,12 @@ interface IRevenueData {
   revenueByDay: RevenueByDay[]
   revenueAllYears: RevenueAllYear[]
   revenueAllMonths: RevenueAllMonth[]
+  methodPayments: MethodPayment[]
 }
-
+interface IMethodPayment {
+  methodPayment: string
+  orderQuantity: number
+}
 interface RevenueByYear {
   day: number
   month: number

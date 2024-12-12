@@ -16,6 +16,7 @@ const apiRoutes = {
     years: 'revenue/years',
     filter: 'revenue/filter',
     overview: 'revenue/overview',
+    search: 'revenue/search',
   },
   order: {
     getAll: `/order/getAll`,

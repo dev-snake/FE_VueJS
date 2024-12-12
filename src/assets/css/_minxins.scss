@@ -1,5 +1,5 @@
 @use 'variables' as *;
-
+@use 'sass:map';
 @mixin flex-layout($justify: center, $align: center, $direction: row, $gap: 0) {
   display: flex;
   flex-direction: $direction;
@@ -19,12 +19,12 @@
   grid-column: span $col / span $col;
 }
 @mixin responsive($key) {
-  @media (min-width: map-get($breakpoints, $key)) {
+  @media (min-width: map.get($breakpoints, $key)) {
     @content;
   }
 }
 @mixin responsive-max($key) {
-  @media not all and (min-width: map-get($breakpoints, $key)) {
+  @media not all and (min-width: map.get($breakpoints, $key)) {
     @content;
   }
 }

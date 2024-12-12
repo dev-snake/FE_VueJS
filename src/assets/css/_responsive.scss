@@ -33,3 +33,29 @@
     @include grid-cols(1);
   }
 }
+.filter-bar-responsive {
+  @include responsive-max(lg) {
+    display: grid;
+    row-gap: 4px;
+    margin: 0 auto;
+  }
+}
+.container-filter-response {
+  @include responsive-max(sm) {
+    display: grid;
+    justify-content: stretch;
+    .select-response {
+      width: 100% !important;
+    }
+  }
+}
+.responsive-sidebar {
+  @include responsive-max(lg) {
+    display: block !important;
+  }
+}
+.t-hidden {
+  @include responsive-max(sm) {
+    display: none;
+  }
+}

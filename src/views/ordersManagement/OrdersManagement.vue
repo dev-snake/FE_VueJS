@@ -18,7 +18,7 @@ watch(filterStatus, (newValue) => {
   if (newValue === 'all') {
     ordersListFiltered.value = ordersList.value
   } else {
-    ordersListFiltered.value = ordersList.value.filter((order) => order.orderStatus === newValue)
+    ordersListFiltered.value = ordersList.value.filter((order) => order.methodPayment === newValue)
   }
 })
 
@@ -57,9 +57,10 @@ onMounted(() => {
         v-model="filterStatus"
       >
         <option selected value="all">Tất cả</option>
-        <option value="pending">pendding</option>
-        <option value="canceled">canceled</option>
-        <option value="completed">completed</option>
+        <option value="momo">momo</option>
+        <option value="zalo">zalo</option>
+        <option value="cash">cash</option>
+        <option value="visa">visa</option>
       </select>
 
       <button
@@ -74,12 +75,11 @@ onMounted(() => {
       <thead>
         <tr>
           <th scope="col">#</th>
-          <th scope="col">Đơn hàng</th>
           <th scope="col">Ngày tạo đơn</th>
           <th scope="col">Phương thức thanh toán</th>
-          <th scope="col">Trạng thái đơn hàng</th>
+          <th scope="col" class="t-hidden">Trạng thái đơn hàng</th>
           <th scope="col">Tổng đơn hàng</th>
-          <th scope="col">Hành động</th>
+          <th scope="col" class="t-hidden">Hành động</th>
         </tr>
       </thead>
       <TransitionGroup name="list" tag="tbody">
@@ -89,12 +89,11 @@ onMounted(() => {
           :style="`transition-delay: ${index * 300}ms;`"
         >
           <th scope="row" v-text="index + 1"></th>
-          <td v-text="'Đơn hàng'"></td>
-          <td v-text="new Date(order?.created_at).toLocaleDateString()"></td>
+          <td v-text="`${order.day}/${order.month}/${order.year}`"></td>
           <td>
             <span v-text="order.methodPayment"></span>
           </td>
-          <td>
+          <td class="t-hidden">
             <span
               v-text="order.orderStatus"
               class="text-white p-1 px-3 opacity-75 text-uppercase fw-lighter rounded-4"
@@ -108,12 +107,12 @@ onMounted(() => {
             ></span>
           </td>
           <td v-text="formatCurrencyVN(order.totalOrder)"></td>
-          <td>
+          <td class="t-hidden">
             <button
-              class="btn btn-warning text-white me-2"
-              @click="router.push({ path: `/order/${order.id}/edit` })"
+              class="btn btn-primary text-white me-2"
+              @click="router.push({ path: `/order/${order.id}/view` })"
             >
-              Sửa
+              Xem
             </button>
           </td>
         </tr>

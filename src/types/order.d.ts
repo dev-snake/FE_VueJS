@@ -6,6 +6,9 @@ interface IOrderItem {
     customerId: string
     totalOrder: number
     products: IProduct[]
+    month: number;
+    year: number
+    day: number
     orderStatus: TOrderStatus
     methodPayment: TMethodPayment
     created_at: string

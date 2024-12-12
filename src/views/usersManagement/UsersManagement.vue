@@ -53,8 +53,8 @@ onMounted(() => {
         <tr>
           <th scope="col">#</th>
           <th scope="col">Tên người dùng</th>
-          <th scope="col">Username</th>
-          <th scope="col">Email</th>
+          <th scope="col" class="t-hidden">Username</th>
+          <th scope="col" class="t-hidden">Email</th>
           <th scope="col">Số điện thoại</th>
           <th scope="col">Hành động</th>
         </tr>
@@ -72,8 +72,8 @@ onMounted(() => {
         >
           <td v-text="index + 1"></td>
           <td v-text="user.fullname"></td>
-          <td v-text="user.username"></td>
-          <td v-text="user.email"></td>
+          <td v-text="user.username" class="t-hidden"></td>
+          <td v-text="user.email" class="t-hidden"></td>
           <td v-text="user.phoneNumber"></td>
           <td>
             <button
