@@ -110,7 +110,6 @@ const handleFilter = async () => {
       filterInfoOfQuantitySold.value = response.data.payload
       typeDashboardFilter.value.quantitySold = 'Ngày'
     }
-    console.log(response)
   } catch (error) {
     console.log(error)
   } finally {
