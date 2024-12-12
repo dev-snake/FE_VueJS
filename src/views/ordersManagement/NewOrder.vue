@@ -5,6 +5,7 @@ import type { IAPI_Response } from '@/types/apiResponse'
 import type { IProduct } from '@/types/product'
 import type { IUser } from '@/types/user'
 import formatCurrencyVN from '@/utils/formatMoney'
+import GenYears from '@/utils/gen_years'
 import { onMounted, ref, watch, Transition } from 'vue'
 import { useRouter } from 'vue-router'
 import { toast } from 'vue3-toastify'
@@ -27,6 +28,10 @@ const paymentInfo = ref<PaymentInfo>({} as PaymentInfo)
 const loading = ref<boolean>(true)
 const totalOrder = ref<number>(0)
 const router = useRouter()
+const date = ref({
+  year: new Date().getFullYear(),
+  month: new Date().getMonth() + 1,
+})
 const handleAddProduct = (productId: string) => {
   const product = productsList.value.find((p) => p.id === productId)
   const newOrderItem = {
@@ -76,6 +81,8 @@ const handleCreateOrder = async () => {
       methodPayment: paymentInfo.value.methodPayment,
       customerId: paymentInfo.value.customerId,
       orderStatus: 'completed',
+      year: date.value.year,
+      month: date.value.month,
     })
     if (res.data.status === 'success') {
       toast.success('Tạo đơn hàng thành công !')
@@ -200,23 +207,45 @@ onMounted(() => {
           <label for="floatingSelect">Chọn phương thức thanh toán</label>
         </div>
       </div>
-      <!-- <div class="p-4 bg-white shadow-sm rounded-3 mt-4">
-        <h5 class="mb-2">Chọn trạng thái đơn hàng</h5>
-        <div class="form-floating">
-          <select
-            v-model="paymentInfo.orderStatus"
-            class="form-select"
-            id="floatingSelect"
-            aria-label="Floating label select example"
-          >
-            <option selected>Chọn phương thức thanh toán</option>
-            <option value="pending">Chờ xác nhận</option>
-            <option value="completed">Hoàn thành</option>
-            <option value="canceled">Hủy</option>
-          </select>
-          <label for="floatingSelect">Chọn phương thức thanh toán</label>
+      <div class="p-4 bg-white shadow-sm rounded-3 mt-4">
+        <h5 class="mb-2">Chọn tháng và năm</h5>
+        <div class="flex gap-2">
+          <div class="form-floating w-100">
+            <select
+              v-model="date.year"
+              class="form-select"
+              id="floatingSelect"
+              aria-label="choose year"
+            >
+              <option selected>Chọn Năm</option>
+              <option
+                :value="item"
+                v-for="(item, index) in GenYears()"
+                :key="index"
+                v-text="item"
+              ></option>
+            </select>
+            <label for="floatingSelect">Chọn năm </label>
+          </div>
+          <div class="form-floating w-100">
+            <select
+              v-model="date.month"
+              class="form-select"
+              id="floatingSelect"
+              aria-label="Floating label select example"
+            >
+              <option selected>Chọn tháng</option>
+              <option
+                :value="item"
+                v-for="(item, index) in Array.from({ length: 12 }).map((_, i) => i + 1)"
+                :key="index"
+                v-text="item"
+              ></option>
+            </select>
+            <label for="floatingSelect">Chọn tháng</label>
+          </div>
         </div>
-      </div> -->
+      </div>
     </div>
     <div class="col-span-6 bg-white">
       <div class="shadow-sm p-4 rounded-4">

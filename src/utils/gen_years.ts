@@ -1,7 +1,6 @@
 const GenYears = () => {
   const years = []
-  const currentYear = new Date().getFullYear()
-  for (let i = 2000; i <= currentYear; i++) {
+  for (let i = 2000; i <= new Date().getFullYear(); i++) {
     years.push(i)
   }
 

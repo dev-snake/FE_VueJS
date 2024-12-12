@@ -16,7 +16,7 @@ const {
 </script>
 
 <template>
-  <div class="grid grid-cols-4 quick-stats-responsive gap-2">
+  <div class="grid grid-cols-3 quick-stats-responsive gap-2">
     <div class="shadow-sm p-4 rounded-4">
       <div>
         <span class="fs-6 fw-bolder text-dark opacity-25 animate__animated animate__bounce d-block"
@@ -55,7 +55,7 @@ const {
         v-text="formatCurrencyVN(revenueByCurrentMonth ?? 0)"
       ></h2>
     </div>
-    <div class="shadow-sm p-4 rounded-4">
+    <!-- <div class="shadow-sm p-4 rounded-4">
       <span class="fs-6 fw-bolder text-dark opacity-25 animate__animated animate__bounce d-block"
         >Doanh thu tuần này</span
       >
@@ -72,7 +72,7 @@ const {
         v-else
         v-text="formatCurrencyVN(revenueByCurrentWeek ?? 0)"
       ></h2>
-    </div>
+    </div> -->
     <div class="shadow-sm p-4 rounded-4">
       <div class="">
         <span class="fs-6 fw-bolder text-dark opacity-25 animate__animated animate__bounce d-block"

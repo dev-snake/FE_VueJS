@@ -6,6 +6,7 @@ export interface IProduct {
   storage: number
   updated_at: string
   created_at: string
+  quantity?: number;
 }
 export interface INewProduct {
   productName: string
