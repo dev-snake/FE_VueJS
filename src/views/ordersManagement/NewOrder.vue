@@ -28,6 +28,7 @@ const paymentInfo = ref<PaymentInfo>({} as PaymentInfo)
 const loading = ref<boolean>(true)
 const totalOrder = ref<number>(0)
 const router = useRouter()
+const isCreatingOrder = ref<boolean>(false)
 const date = ref({
   year: new Date().getFullYear(),
   month: new Date().getMonth() + 1,
@@ -66,10 +67,10 @@ const handleCreateOrder = async () => {
   if (newOrder.value.length === 0) {
     return toast.warning('Vui lòng thêm sản phẩm trước khi tạo  !')
   }
-
   if (!paymentInfo.value.customerId || !paymentInfo.value.methodPayment) {
     return toast.warning('Vui lòng nhập người đầy đủ thông tin')
   }
+  isCreatingOrder.value = true
   try {
     const res = await axiosConfig.post<IAPI_Response>(apiRoutes.order.create, {
       products: newOrder.value,
@@ -85,6 +86,8 @@ const handleCreateOrder = async () => {
     }
   } catch (error) {
     console.log(error)
+  } finally {
+    isCreatingOrder.value = false
   }
 }
 watch(
@@ -290,7 +293,13 @@ onMounted(() => {
         </div>
       </div>
       <div class="mt-4">
-        <button class="w-full p-2 btn btn-primary" @click="handleCreateOrder">Tạo đơn hàng</button>
+        <button
+          :disabled="isCreatingOrder"
+          class="w-full p-2 btn btn-primary"
+          @click="handleCreateOrder"
+        >
+          Tạo đơn hàng
+        </button>
       </div>
     </div>
   </div>
