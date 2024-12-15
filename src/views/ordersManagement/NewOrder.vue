@@ -66,13 +66,8 @@ const handleCreateOrder = async () => {
   if (newOrder.value.length === 0) {
     return toast.warning('Vui lòng thêm sản phẩm trước khi tạo  !')
   }
-  if (
-    [
-      paymentInfo.value.customerId,
-      paymentInfo.value.methodPayment,
-      paymentInfo.value.orderStatus,
-    ].includes('')
-  ) {
+
+  if (!paymentInfo.value.customerId || !paymentInfo.value.methodPayment) {
     return toast.warning('Vui lòng nhập người đầy đủ thông tin')
   }
   try {
@@ -198,7 +193,7 @@ onMounted(() => {
             id="floatingSelect"
             aria-label="Floating label select example"
           >
-            <option selected>Chọn phương thức thanh toán</option>
+            <option selected disabled>Chọn phương thức thanh toán</option>
             <option value="cash">Cash</option>
             <option value="momo">Momo</option>
             <option value="zalo">Zalo</option>
