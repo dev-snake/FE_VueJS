@@ -20,9 +20,9 @@ const apiRoutes = {
     searchV2: 'revenue/search/v2',
   },
   order: {
-    getAll: `/order/getAll`,
-    create: `/order/create`,
-    getOne: (orderId: string) => `/order/getOne/${orderId}/`,
+    getAll: `/orders/getAll`,
+    create: `/orders/create`,
+    getOne: (orderId: string) => `/orders/getOne/${orderId}/`,
   },
   user: {
     getAll: `/user/getAll`,
