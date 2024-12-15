@@ -82,8 +82,8 @@ onMounted(() => {
     </button>
   </div>
   <Loading v-show="loading" />
-  <table class="table py-4 table-hover" v-show="!loading">
-    <thead>
+  <table class="table py-4 text-center table-hover table-bordered mt-4" v-show="!loading">
+    <thead class="table-light">
       <tr>
         <th>#</th>
         <th>Tên sản phẩm</th>

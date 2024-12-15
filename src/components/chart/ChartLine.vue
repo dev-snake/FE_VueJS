@@ -3,6 +3,7 @@ import Chart from 'chart.js/auto'
 import { type ChartType } from 'chart.js/auto'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import months from '@/utils/monthsData'
+import getGradient from './lib/animation'
 type TLabelType = 'Tháng' | 'Ngày' | 'Năm' | ''
 const {
   dataValues,
@@ -20,14 +21,7 @@ const {
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 
 let chartInstance: Chart | null = null
-const footer = (tooltipItems: any) => {
-  let sum = 0
 
-  tooltipItems.forEach(function (tooltipItem: any) {
-    sum += tooltipItem.parsed.y
-  })
-  return 'Tổng : ' + sum
-}
 onMounted(() => {
   const ctx = canvasRef.value?.getContext('2d')
   if (ctx) {
@@ -36,52 +30,47 @@ onMounted(() => {
       data: {
         labels: labels.map((item) => labelType + ' ' + item),
         datasets: [
-          // {
-          //   label,
-          //   type: 'line',
-          //   data: dataValues,
-          //   backgroundColor: ['#3498db', '#1abc9c', '#9b59b6', '#ffb0c1'],
-          //   borderColor: '#B1F0F7',
-          //   borderWidth: 2,
-          //   pointStyle: 'circle',
-          // },
           {
             label,
             data: dataValues,
-            backgroundColor: ['#3498db', '#1abc9c', '#9b59b6', '#ffb0c1'],
-            borderSkipped: false,
-            borderWidth: 2,
+            backgroundColor: '#ffb0c1',
+            borderColor: function (context: any) {
+              const chart = context.chart
+              const { ctx, chartArea } = chart
 
-            pointStyle: 'circle',
-            pointRadius: 6,
-            pointHoverRadius: 15,
-            borderRadius: 24,
+              if (!chartArea) {
+                // This case happens on initial chart load
+                return
+              }
+              return getGradient(ctx, chartArea)
+            },
           },
         ],
       },
       options: {
-        responsive: true,
-        layout: { padding: 16 },
         animations: {
-          y: {
-            easing: 'easeInOutElastic',
-            from: (ctx: any) => {
-              if (ctx.type === 'data') {
-                if (ctx.mode === 'default' && !ctx.dropped) {
-                  ctx.dropped = true
-                  return 0
-                }
-              }
-            },
+          radius: {
+            duration: 400,
+            easing: 'linear',
+            loop: (context) => context.active,
           },
         },
-        // plugins: {
-        //   tooltip: {
-        //     callbacks: {
-        //       footer: footer,
-        //     },
-        //   },
-        // },
+        elements: {
+          point: {
+            hoverRadius: 12,
+          },
+        },
+        hoverBackgroundColor: '#FCCD2A',
+        interaction: {
+          mode: 'index',
+          intersect: false,
+          axis: 'x',
+        },
+        plugins: {
+          tooltip: {
+            // enabled: false,
+          },
+        },
       },
     })
   }

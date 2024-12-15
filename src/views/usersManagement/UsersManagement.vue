@@ -5,8 +5,10 @@ import type { IAPI_Response } from '@/types/apiResponse'
 import type { IUser } from '@/types/user'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import Loading from '@/components/common/Loading.vue'
 const usersList = ref<any[]>([])
 const router = useRouter()
+const isLoading = ref<boolean>(true)
 const handleDeleteUser = async (userId: string) => {
   const isConfirm = confirm('Bạn có chắc chắn muốn xóa người dùng này không?')
   if (!isConfirm) return
@@ -21,6 +23,7 @@ const handleDeleteUser = async (userId: string) => {
   }
 }
 onMounted(() => {
+  isLoading.value = true
   const fechData = async () => {
     try {
       const response = await axiosConfig.get<IAPI_Response<IUser[]>>(apiRoutes.user.getAll)
@@ -28,6 +31,8 @@ onMounted(() => {
       usersList.value = response.data.results
     } catch (error) {
       console.log(error)
+    } finally {
+      isLoading.value = false
     }
   }
   fechData()
@@ -48,8 +53,9 @@ onMounted(() => {
         Tạo người dùng
       </button>
     </div>
-    <table class="table py-4 table-hover">
-      <thead>
+    <Loading v-show="isLoading" />
+    <table class="table py-4 table-hover table-bordered text-center mt-4" v-show="!isLoading">
+      <thead class="table-light">
         <tr>
           <th scope="col">#</th>
           <th scope="col">Tên người dùng</th>

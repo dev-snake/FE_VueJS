@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
+const router = useRouter()
+const route = router.currentRoute
+console.log(route.value)
 </script>
 <template>
   <div class="side-bar col-span-2 shadow-sm h-screen">
@@ -15,18 +18,33 @@ import { RouterLink } from 'vue-router'
       <RouterLink
         activeClass="bg-primary  text-white"
         to="/products"
+        :class="
+          ['products', 'create-p', 'edit-product'].includes($route.name as string)
+            ? 'bg-primary text-white active'
+            : ''
+        "
         class="text-size-1 fw-medium text-uppercase text-decoration-none px-2 py-3 w-full text-center rounded-2 cursor-pointer"
         >Sản Phẩm</RouterLink
       >
       <RouterLink
         activeClass="bg-primary  text-white"
         to="/orders"
+        :class="
+          ['orders', 'create-order', 'edit-order', 'view-order'].includes($route.name as string)
+            ? 'bg-primary text-white active'
+            : ''
+        "
         class="text-size-1 fw-medium text-uppercase text-decoration-none px-2 py-3 w-full text-center rounded-2 cursor-pointer"
         >Đơn hàng</RouterLink
       >
       <RouterLink
         activeClass="bg-primary  text-white"
         to="/users"
+        :class="
+          ['create-user', 'edit-user'].includes($route.name as string)
+            ? 'bg-primary text-white active'
+            : ''
+        "
         class="text-size-1 fw-medium text-uppercase text-decoration-none px-2 py-3 w-full text-center rounded-2 cursor-pointer"
         >Người dùng</RouterLink
       >
@@ -61,12 +79,17 @@ import { RouterLink } from 'vue-router'
         <div class="p-4 flex-column">
           <RouterLink
             to="/dashboard"
-            activeClass="bg-primary  text-white"
+            activeClass="bg-primary text-white"
             class="text-size-1 fw-medium text-uppercase text-decoration-none px-2 py-3 w-full text-center rounded-2 cursor-pointer"
             >Thống kê</RouterLink
           >
+          {{ console.log($route.name) }}
           <RouterLink
-            activeClass="bg-primary  text-white"
+            :class="
+              ['products', 'create-p', 'edit-product'].includes($route.name as string)
+                ? 'bg-primary text-white active'
+                : ''
+            "
             to="/products"
             class="text-size-1 fw-medium text-uppercase text-decoration-none px-2 py-3 w-full text-center rounded-2 cursor-pointer"
             >Sản Phẩm</RouterLink
@@ -74,12 +97,22 @@ import { RouterLink } from 'vue-router'
           <RouterLink
             activeClass="bg-primary  text-white"
             to="/orders"
+            :class="
+              ['orders', 'create-order', 'edit-order', 'view-order'].includes($route.name as string)
+                ? 'bg-primary text-white active'
+                : ''
+            "
             class="text-size-1 fw-medium text-uppercase text-decoration-none px-2 py-3 w-full text-center rounded-2 cursor-pointer"
             >Đơn hàng</RouterLink
           >
           <RouterLink
             activeClass="bg-primary  text-white"
             to="/users"
+            :class="
+              ['create-user', 'edit-user'].includes($route.name as string)
+                ? 'bg-primary text-white active'
+                : ''
+            "
             class="text-size-1 fw-medium text-uppercase text-decoration-none px-2 py-3 w-full text-center rounded-2 cursor-pointer"
             >Người dùng</RouterLink
           >

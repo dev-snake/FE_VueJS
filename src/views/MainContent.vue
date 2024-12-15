@@ -10,10 +10,13 @@ import type { IProductSoldInfo } from '@/types/get_quantity_sold'
 import type { IProduct } from '@/types/product'
 import type { IQuantitySoldCurrentYear } from '@/types/quantity_sold_current_year'
 import FilterBar from '@/components/FilterBar.vue'
+import ChartLine from '@/components/chart/ChartLine.vue'
 import { toast } from 'vue3-toastify'
 import * as bootstrap from 'bootstrap'
-type TSearchType = 'REVENUE_METHOD_PAYMENT' | 'BEST_SELLING_PRODUCT'
+import ChartSearch from '@/components/chart/ChartSearch.vue'
+import type { ChartType } from 'chart.js'
 type TDashboardFilterType = 'Tháng' | 'Năm' | 'Ngày'
+type TChartSearchType = 'REVENUE_BAR' | 'QUANTITY_SOLD_LINE'
 interface IDashboardFilter {
   revenue: TDashboardFilterType
   quantitySold: TDashboardFilterType
@@ -24,6 +27,7 @@ const typeDashboardFilter = ref<IDashboardFilter>({
 })
 const seletedType = ref<TFilterType>('')
 const numberOfProductsSold = ref<IProductSoldInfo[]>([])
+const revenueByCurrentYear = ref<number>(0)
 const numberOfProductInventory = ref<IProduct[]>([])
 const quantitySoldCurrentYearList = ref<IQuantitySoldCurrentYear[]>([])
 const methodPayments = ref<IMethodPayment[]>([])
@@ -33,6 +37,7 @@ const selectedMonthOfRevenue = ref<number>()
 const selectedMonthOfQuantitySold = ref<number>()
 const seletedMonth = ref<string | number>('')
 const loading = ref<boolean>(true)
+const productsList = ref<IProduct[]>([])
 const filterInfoOfRevenue = ref<{ month: number | null; type: TFilterType; year: number }>(
   {} as { month: number | null; type: TFilterType; year: number },
 )
@@ -42,6 +47,7 @@ const filterInfoOfQuantitySold = ref<{ month: number | null; type: TFilterType; 
 const SEARCH_TYPE = ref<string>('')
 const isFiltering = ref<boolean>(false)
 const isSearching = ref<boolean>(true)
+const selectedSearchType = ref<TChartSearchType>('REVENUE_BAR')
 const fetchRevenue = async () => {
   try {
     const [
@@ -49,6 +55,7 @@ const fetchRevenue = async () => {
       responseQuantitySold,
       responseInventory,
       responseQuantitySoldCurrentYear,
+      responseProductList,
     ] = await Promise.all([
       axiosConfig.get<IAPI_Response<IRevenueData>>(apiRoutes.revenue.overview),
       axiosConfig.get<IAPI_Response<IProductSoldInfo[]>>(apiRoutes.product.getQuantitySold),
@@ -56,12 +63,21 @@ const fetchRevenue = async () => {
       axiosConfig.get<IAPI_Response<IQuantitySoldCurrentYear[]>>(
         apiRoutes.product.getQuantitySoldCurrentYear,
       ),
+      axiosConfig.get<IAPI_Response<IProduct[]>>(apiRoutes.product.getAll),
     ])
-    revenueData.value = responseRevenueData.data.results
+    const convertArr = responseRevenueData.data.results.revenueAllYears.sort(
+      (a, b) => a.year - b.year,
+    )
+    revenueData.value = { ...responseRevenueData.data.results, revenueAllYears: convertArr }
     numberOfProductsSold.value = responseQuantitySold.data.results
     quantitySoldCurrentYearList.value = responseQuantitySoldCurrentYear.data.results
     numberOfProductInventory.value = responseInventory.data.results
     methodPayments.value = responseRevenueData.data.results.methodPayments
+    productsList.value = responseProductList.data.results
+    revenueByCurrentYear.value = responseRevenueData.data.results.revenueByYear.reduce(
+      (total, item) => total + item.totalRevenue,
+      0,
+    )
   } catch (error) {
     console.log(error)
   } finally {
@@ -120,14 +136,19 @@ const handleSearch = async () => {
   if (SEARCH_TYPE.value === '') {
     return toast.warning('Vui lòng chọn lựa chọn tìm kiếm')
   }
+  const splitValue = SEARCH_TYPE.value.split('_')
+  const productId = splitValue[0]
+  const productName = splitValue[1]
   const modal = new bootstrap.Modal(document.getElementById('exampleModal') as HTMLElement)
   if (modal) {
     modal.show()
   }
   isSearching.value = true
+  console.log(SEARCH_TYPE.value)
   try {
-    const response = await axiosConfig.post<IAPI_Response>(apiRoutes.revenue.search, {
-      type_search: SEARCH_TYPE.value,
+    const response = await axiosConfig.post<IAPI_Response>(apiRoutes.revenue.searchV2, {
+      productId,
+      productName,
     })
     if (response.data.status === 'success') {
       dataSearch.value = response.data.results
@@ -138,7 +159,10 @@ const handleSearch = async () => {
     isSearching.value = false
   }
 }
-
+watch(selectedSearchType, (newValue) => {
+  console.log(newValue)
+  console.log(dataSearch.value, 'data search')
+})
 onMounted(() => {
   loading.value = true
   fetchRevenue()
@@ -153,10 +177,21 @@ onMounted(() => {
       aria-labelledby="exampleModalLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-lg">
+      <div class="modal-dialog modal-xl">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Kết quả tìm kiếm</h1>
+            <div class="flex items-center gap-4">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Kết quả tìm kiếm</h1>
+              <select
+                class="form-select w-200"
+                aria-label="Default select example"
+                v-model="selectedSearchType"
+              >
+                <option selected :value="selectedSearchType" disabled>Lọc theo</option>
+                <option value="REVENUE_BAR">Doanh thu</option>
+                <option value="QUANTITY_SOLD_LINE">Số lượng bán</option>
+              </select>
+            </div>
             <button
               type="button"
               class="btn-close"
@@ -166,11 +201,12 @@ onMounted(() => {
           </div>
           <div class="modal-body">
             <Loading v-show="isSearching" />
-            <Chart
-              v-if="!isSearching && SEARCH_TYPE === 'REVENUE_METHOD_PAYMENT'"
-              :labels="dataSearch?.map((item: any) => item.methodPayment.toString()) ?? []"
-              :data-values="dataSearch?.map((item: any) => item.totalRevenue) ?? []"
-              :label="'Doanh thu phương thức thanh toán'"
+            <ChartSearch
+              v-if="!isSearching"
+              :selected-chart-type="selectedSearchType"
+              :chart-type="selectedSearchType === 'REVENUE_BAR' ? 'bar' : 'line'"
+              :labels="dataSearch?.map((item: any) => item.year.toString()) ?? []"
+              :data-values="dataSearch"
             />
           </div>
           <div class="modal-footer">
@@ -192,9 +228,7 @@ onMounted(() => {
       :revenueByCurrentWeek="
         revenueData?.revenueByWeek.reduce((total, item) => total + item.totalRevenue, 0)
       "
-      :revenueByCurrentYear="
-        revenueData?.revenueByYear.reduce((total, item) => total + item.totalRevenue, 0)
-      "
+      :revenueByCurrentYear="revenueByCurrentYear"
     />
     <div
       class="flex justify-between gap-2 mt-4 items-center container-filter-response"
@@ -203,7 +237,13 @@ onMounted(() => {
       <div class="flex gap-2">
         <select class="form-select" aria-label="Default select example" v-model="SEARCH_TYPE">
           <option selected value="">Chọn lựa chọn tìm kiếm</option>
-          <option value="REVENUE_METHOD_PAYMENT">Doanh thu phương thức thanh toán</option>
+          <!-- <option value="REVENUE_METHOD_PAYMENT">Doanh thu phương thức thanh toán</option> -->
+          <option
+            :value="`${product.id}_${product.productName}`"
+            v-for="(product, index) in productsList"
+            :key="index"
+            v-text="product.productName"
+          ></option>
         </select>
         <button class="btn btn-primary w-200" @click="handleSearch">Tìm kiếm</button>
       </div>
@@ -240,7 +280,7 @@ onMounted(() => {
       <div class="grid-item shadow-sm">
         <h5 class="text-center py-2" v-text="`Biểu đồ số lượng bán trong năm `"></h5>
 
-        <Chart
+        <ChartLine
           :labels="
             quantitySoldCurrentYearList.map((item) =>
               item.day === undefined ? item.month.toString() : item.day.toString(),
@@ -256,7 +296,7 @@ onMounted(() => {
       </div>
       <div class="text-center shadow-sm p-4 rounded-4">
         <h5 class="py-2">Số lượng sản phẩm đã bán</h5>
-        <Chart
+        <ChartLine
           :label="'Đã bán'"
           chart-type="line"
           :labels="numberOfProductsSold.map((item) => item.productName)"
@@ -282,11 +322,11 @@ onMounted(() => {
       </div>
       <div class="text-center grid-item shadow-sm">
         <h5 class="py-2">Doanh thu bán hàng của các năm</h5>
-        <Chart
+        <ChartLine
           :label-type="'Năm'"
           :label="'Doanh thu bán hàng của các năm'"
           :chart-type="'line'"
-          :data-values="revenueData?.revenueAllYears.map((item) => item.totalRevenue) ?? []"
+          :data-values="revenueData?.revenueAllYears.map((item: any) => item.totalRevenue) ?? []"
           :labels="revenueData?.revenueAllYears.map((item) => item.year) as any"
         />
       </div>

@@ -71,8 +71,8 @@ onMounted(() => {
       </button>
     </div>
     <Loading v-show="loading" />
-    <table class="table" v-show="!loading">
-      <thead>
+    <table class="table table-bordered text-center mt-4" v-show="!loading">
+      <thead class="table-light">
         <tr>
           <th scope="col">#</th>
           <th scope="col">Ngày tạo đơn</th>
